@@ -24,46 +24,37 @@ export default function ArtTable() {
   const [loading, setLoading] = useState(false);
   const [selectedRows, setSelectedRows] = useState<Artwork[]>([]);
   const [globalSelectedIds, setglobalSelectedIds] = useState<Set<number>>(new Set());
-  const [bulkSelectCount, setBulkSelectCount] = useState<number | null>(null);
-
   const op = useRef<OverlayPanel>(null);
   const [selectCount, setSelectCount] = useState<number>(0);
 
-  useEffect(() => {
-    const fetchArtworks = async () => {
-      setLoading(true);
+ useEffect(() => {
+  const fetchArtworks = async () => {
+    setLoading(true);
 
-      const response = await fetch(
-        `https://api.artic.edu/api/v1/artworks?page=${page}`
-      );
-      const json = await response.json();
+    const response = await fetch(
+      `https://api.artic.edu/api/v1/artworks?page=${page}`
+    );
+    const json = await response.json();
 
-      setData(json.data);
-      setTotalRecords(json.pagination.total);
+    setData(json.data);
+    setTotalRecords(json.pagination.total);
 
-      const newSelectedRows: Artwork[] = [];
-      const updatedglobalSelectedIds = new Set(globalSelectedIds);
+    const newSelectedRows: Artwork[] = [];
+    const updatedglobalSelectedIds = new Set(globalSelectedIds);
 
-      json.data.forEach((row: Artwork, index: number) => {
-        const globalIndex = (page - 1) * ROWS_PER_PAGE + index;
+    json.data.forEach((row: Artwork) => {
+      if (updatedglobalSelectedIds.has(row.id)) {
+        newSelectedRows.push(row);
+      }
+    });
 
-        if (bulkSelectCount !== null && globalIndex < bulkSelectCount) {
-          updatedglobalSelectedIds.add(row.id);
-        }
+    setSelectedRows(newSelectedRows);
+    setLoading(false);
+  };
 
-        if (updatedglobalSelectedIds.has(row.id)) {
-          newSelectedRows.push(row);
-        }
-      });
+  fetchArtworks();
+}, [page]);
 
-      setglobalSelectedIds(updatedglobalSelectedIds);
-      setSelectedRows(newSelectedRows);
-
-      setLoading(false);
-    };
-
-    fetchArtworks();
-  }, [page, bulkSelectCount]);
 
   const handleSelectionChange = (e: any) => {
     const currentPageSelections = e.value as Artwork[];
