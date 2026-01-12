@@ -13,4 +13,4 @@ Tech stack:
 - Vite
 
 API used:
-https://api.artic.edu/api/v1/artworks
+https://api.artic.edu/api/v1/artworks?page=1
